@@ -61,7 +61,10 @@ function VMC_getCurrentVMDCodds() {
     }
     let cellsPastCooldown = timeSinceVoid - cooldownCellCount;
     let currentChance = Math.floor(cellsPastCooldown / 10) / 50000;
-    return '' + currentChance + '%-per-cell';
+	let returnstring = '';
+    returnstring += prettify(currentChance);
+    returnstring += '%-per-cell';
+    return returnstring;
 }
 
 function VMC_makeStringForDisplay() {
@@ -69,7 +72,7 @@ function VMC_makeStringForDisplay() {
         return 'N/A';
     }
     
-    const voidmapstring = VMC_getCurrentVMDCeffect() + "<br\>" + VMC_getCurrentVMDCodds();
+    const voidmapstring = prettify(VMC_getCurrentVMDCeffect()) + "<br\>" + VMC_getCurrentVMDCodds();
     return voidmapstring
 }
 

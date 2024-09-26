@@ -228,7 +228,7 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += ` you would expect to have gotten something like (estimate!) <b>` + prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
     let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
     let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
-    tooltipstring += ` However, anywhere from ` + prettify(a_bit_lucky_version) + ` to ` + prettify(a_bit_unlucky_version) + ` are within 10% odds.`
+    tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% odds.`
     tooltipstring += ` (these numbers change dramatically if you switch heirlooms. be not alarmed)</p>`;
     tooltipstring += "')"
     return tooltipstring

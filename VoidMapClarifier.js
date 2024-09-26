@@ -57,7 +57,7 @@ function VMC_getCurrentVMDCodds() {
 
     let timeSinceVoid = game.global.lastVoidMap;
     if (timeSinceVoid < cooldownCellCount) {
-        return 'cells left: ' + (cooldownCellCount - timeSinceVoid);
+        return 'cells left: ' + prettify(cooldownCellCount - timeSinceVoid);
     }
     let cellsPastCooldown = timeSinceVoid - cooldownCellCount;
     let currentChance = Math.floor(cellsPastCooldown / 10) / 50000;
@@ -85,7 +85,9 @@ function VMC_populateVoidMapTooltip() {
       return '';
     }
     let tooltipstring = '';
+	tooltipstring = "tooltip('Runetrinket Summary', 'customText', event, '";
     tooltipstring = "you've gotten " + VMC_getCurrentTotalVoids() + " voids total!";
+    tooltipstring += "')"
     return tooltipstring
 }
 

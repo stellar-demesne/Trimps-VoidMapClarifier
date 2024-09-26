@@ -134,9 +134,9 @@ function VMC_getEstimateVoidsWithCurrentVMDC() {
     }
 
     let voidspecVoidCount = 0;
-    if (mastery(voidSpecial)) {
+    if (game.talents.voidSpecial.purchased) {
         voidspecVoidCount += Math.floor(getLastPortal() / 100);
-        if (masteryVoidSpecial2) {
+        if (game.talents.voidSpecial2.purchased) {
             voidspecVoidCount += Math.floor((getLastPortal() + 50) / 100);
         }
     }

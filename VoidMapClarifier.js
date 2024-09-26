@@ -172,7 +172,7 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
-    tooltipstring += `<p>With your current <b>` + prettify(round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC, you would expect to have gotten <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.</p>`;
+    tooltipstring += `<p>With your current <b>` + prettify(Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC, you would expect to have gotten <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

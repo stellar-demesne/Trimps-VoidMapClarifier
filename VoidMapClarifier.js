@@ -157,7 +157,7 @@ function VMC_getEstimateVoidsWithCurrentVMDC() {
         fluffyVoidCount += 4;
     }
     let scruffyVoidMult = 1
-    if (Fluffy.isRewardActive('moreVoid') {
+    if (Fluffy.isRewardActive('moreVoid')) {
         scruffyVoidMult = 1.2
     }
 

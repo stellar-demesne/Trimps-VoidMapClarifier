@@ -1,7 +1,11 @@
-// TODO: calculate the actual stats for 1%, 50%, 99% odds of having gotten the map to drop
-const Wombats_VMC_VMRate_random_unlucky = 1850;
-const Wombats_VMC_VMRate_random_average = 850;
-const Wombats_VMC_VMRate_random_lucky = 85;
+// these are the calculated number of cells needed to clear for a 99% chance, 50% chance, and 1% chance of having gotten the void map that quickly
+// they are rounded up, though, for nicer displaying.
+// 10% chance is at 328.5 cells; 25% chance is at 540.5 cells; 75% chance is at 1180.5 cells; 90% chance is at 1520.5 cells.
+// per_cell = floor(x/10) / 50000
+// cumulative = 1 - prod(n=1->x) [1-per_cell(n)]
+const Wombats_VMC_VMRate_random_unlucky = 2149;
+const Wombats_VMC_VMRate_random_average = 837;
+const Wombats_VMC_VMRate_random_lucky = 105;
 initialiseVoidMapClarifier();
 
 function initialiseVoidMapClarifier() {
@@ -145,11 +149,41 @@ function VMC_getEstimateVoidsWithCurrentVMDC() {
         }
     }
 
-    let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
-    let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100
+    let fluffyVoidCount = 0;
+    if (Fluffy.isRewardActive('voidance')) {
+        fluffyVoidCount += 4;
+    }
+    if (Fluffy.isRewardActive('voidelicious')) {
+        fluffyVoidCount += 4;
+    }
+    let scruffyVoidMult = 1
+    if (Fluffy.isRewardActive('moreVoid') {
+        scruffyVoidMult = 1.2
+    }
 
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount);
+    let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
+    let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
+
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * scruffyVoidMult * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount + fluffyVoidCount);
     return totalnetVoidMapEstimate;
+}
+
+function VMC_stringifyCurrentBoneBonusTimer() {
+    let current_tracker_moment = game.permaBoneBonuses.voidMaps.tracker;
+    let current_number_owned = game.permaBoneBonuses.voidMaps.owned;
+    if (current_number_owned == 0) {
+        return ''
+    }
+    let drops_until_next_double = Math.floor((100 - current_tracker_moment) / current_number_owned);
+    if (drops_until_next_double == 0) {
+        return 'Your next void map drop will be duplicated!'
+    }
+    let returntext = 'Your next duplicated void map drop is <b>' + drops_until_next_double + '</b> drop';
+    if (drops_until_next_double != 1) {
+        returntext += 's';
+    }
+    returntext += ' away.'
+    return returntext
 }
 
 function VMC_populateVoidMapTooltip() {
@@ -166,13 +200,19 @@ function VMC_populateVoidMapTooltip() {
         tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear. This chance will increase by 1/50000 for every 10 cells you clear.`;
     }
     tooltipstring += `</p>`;
+    if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
+        tooltipstring += `<p>Your current shield heirloom is also giving an additional free void map for every 10 zones you clear with it equipped.</p>`;
+    }
     tooltipstring += `<p>Statistically, you will get a void map to drop every <b>` + VMC_getCurrentExpectedVMWait() + `</b> cells; however, this is a pretty wide random distribution.`;
     tooltipstring += `1% of the time, you will get void maps every <b>` + VMC_getLuckyVMWait() + `</b> cells,`
     tooltipstring += ` and 1% of the time, you will get void maps only every <b>` + VMC_getUnluckyVMWait() + `</b> cells.`;
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
+    tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
-    tooltipstring += `<p>With your current <b>` + prettify(1 - VMC_getCurrentVMDCeffect()) + `%</b> VMDC, you would expect to have gotten <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.</p>`;
+    tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
+    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.`;
+    tooltipstring += ` (this number changes completely if you switch heirlooms. be not alarmed)</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

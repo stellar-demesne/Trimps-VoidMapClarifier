@@ -101,8 +101,12 @@ function VMC_getUnluckyVMWait() {
 
 function VMC_getGoldenVoidVarianceText() {
     let varianceText = '';
-    varianceText += `With 8 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getFullGoldenVMDropWait() + `. `;
-    varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
+    if (game.goldenUpgrades.Void.currentBonus < 0.72) {
+        varianceText += `With 8 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getFullGoldenVMDropWait() + `. `;
+    }
+    if (game.goldenUpgrades.Void.currentBonus > 0) {
+        varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
+    }
     let difference_in_cells = VMC_getNoGoldenVMDropWait() - VMC_getFullGoldenVMDropWait();
     let difference_in_percentage = VMC_getFullGoldenVMDropWait() / VMC_getNoGoldenVMDropWait();
     varianceText += `This would be a net difference of ` + difference_in_cells + ` cells-per-void-map. Buying 8 golden voids means you get void maps about `;
@@ -120,7 +124,7 @@ function VMC_makeStringForDisplay() {
 }
 
 function VMC_getCurrentTotalVoids() {
-    return game.global.totalVoidMaps + game.stats.totalVoidMaps;
+    return game.global.totalVoidMaps + game.stats.totalVoidMaps.value;
 }
 
 function VMC_getEstimateVoidsWithCurrentVMDC() {
@@ -154,7 +158,7 @@ function VMC_populateVoidMapTooltip() {
     }
     let tooltipstring = "tooltip('Void Map Drop Rate Breakdown', 'customText', event, '";
     tooltipstring += `<p>Your current Void Map Drop Cooldown is <b>` + VMC_getCurrentVMDropCooldown() + `</b>, after which the random-chance-per-cell starts ticking up.`;
-    tooltipstring += `You got your last void map <b>` + game.global.lastVoidMap + `</b> cells ago.`;
+    tooltipstring += ` You got your last void map <b>` + game.global.lastVoidMap + `</b> cells ago.`;
     if (VMC_getCurrentVMDropCooldown() > game.global.lastVoidMap) {
         tooltipstring += ` You need to clear <b>` + (VMC_getCurrentVMDropCooldown() - game.global.lastVoidMap) + `</b> more cells before you could possibly get the next void map.`;
     } else {
@@ -168,7 +172,7 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
-    tooltipstring += `<p>With your current <b>` + VMC_getCurrentVMDCeffect() + `%</b> VMDC, you would expect to have gotten <b>` + VMC_getEstimateVoidsWithCurrentVMDC() + `</b> void maps.</p>`;
+    tooltipstring += `<p>With your current <b>` + prettify(round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC, you would expect to have gotten <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

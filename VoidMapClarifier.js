@@ -39,7 +39,7 @@ function VMC_getCurrentVMDCeffect() {
 function VMC_getsocalledZ() {
     let max = getVoidMaxLevel();
     let lastPortal = getLastPortal();
-    if (lastPortal != -1) && (max - lastPortal < 25) {
+    if ((lastPortal != -1) && (max - lastPortal < 25)) {
         max = lastPortal;
     }
     if (max > 200) {
@@ -65,7 +65,7 @@ function VMC_getCurrentVMDCodds() {
 }
 
 function VMC_makeStringForDisplay() {
-	if (game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1) {
+	if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
         return 'N/A';
     }
     

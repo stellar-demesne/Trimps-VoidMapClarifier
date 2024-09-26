@@ -3,7 +3,7 @@
 // @namespace    https://github.com/stellar-demesne/Trimps-VoidMapClarifier
 // @version      1.0
 // @updateURL    https://github.com/stellar-demesne/Trimps-VoidMapClarifier/VoidMapClarifier.user.js
-// @description  Runetrinket Counter for Trimps
+// @description  VoidMap Drop Mechanism Clarifier for Trimps
 // @author       StellarDemesne
 // @include      *trimps.github.io*
 // @include      *kongregate.com/games/GreenSatellite/trimps

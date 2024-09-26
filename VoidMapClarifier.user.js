@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Runetrinket-Counter
+// @name         VoidMap-Clarifier
 // @namespace    https://github.com/stellar-demesne/Trimps-VoidMapClarifier
 // @version      1.0
 // @updateURL    https://github.com/stellar-demesne/Trimps-VoidMapClarifier/VoidMapClarifier.user.js

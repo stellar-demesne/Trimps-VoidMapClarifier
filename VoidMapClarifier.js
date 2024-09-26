@@ -197,7 +197,8 @@ function VMC_populateVoidMapTooltip() {
         tooltipstring += ` You need to clear <b>` + (VMC_getCurrentVMDropCooldown() - game.global.lastVoidMap) + `</b> more cells before you could possibly get the next void map.`;
     } else {
         let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
-        tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear. This chance will increase by 1/50000 for every 10 cells you clear.`;
+        tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear.`
+	tooltipstring += ` This chance will increase by ` + prettify(100/50000) + `% for every 10 cells you clear.`;
     }
     tooltipstring += `</p>`;
     if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {

@@ -144,7 +144,7 @@ function VMC_getEstimateVoidsWithCurrentVMDC() {
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
     let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100
 
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * (espectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount);
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount);
     return totalnetVoidMapEstimate;
 }
 

@@ -65,7 +65,7 @@ function VMC_getCurrentVMDCodds() {
 }
 
 function VMC_makeStringForDisplay() {
-	if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
+    if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
         return 'N/A';
     }
     
@@ -73,12 +73,16 @@ function VMC_makeStringForDisplay() {
     return voidmapstring
 }
 
+function VMC_getCurrentTotalVoids() {
+    return game.global.totalVoidMaps + game.stats.totalVoidMaps;
+}
+
 function VMC_populateVoidMapTooltip() {
     if (usingRealTimeOffline == true) {
       return '';
     }
     let tooltipstring = '';
-    tooltipstring = "you've gotten " + getCurrentTotalVoids() + " voids total!";
+    tooltipstring = "you've gotten " + VMC_getCurrentTotalVoids() + " voids total!";
     return tooltipstring
 }
 

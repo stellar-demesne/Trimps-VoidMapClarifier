@@ -1,3 +1,7 @@
+// TODO: calculate the actual stats for 1%, 50%, 99% odds of having gotten the map to drop
+const Wombats_VMC_VMRate_random_unlucky = 1850;
+const Wombats_VMC_VMRate_random_average = 850;
+const Wombats_VMC_VMRate_random_lucky = 85;
 initialiseVoidMapClarifier();
 
 function initialiseVoidMapClarifier() {
@@ -36,6 +40,25 @@ function VMC_getCurrentVMDCeffect() {
     return shieldbonus * goldenbonus
 }
 
+function VMC_getMaxVMDCeffect() {
+    let shieldbonus = (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+    let extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
+        extraV = 0.2;
+    }
+    let goldenbonus = (1 - (0.72 + extraV))
+    return shieldbonus * goldenbonus
+}
+function VMC_getMinVMDCeffect() {
+    let shieldbonus = (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+    let extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
+        extraV = 0.2;
+    }
+    let goldenbonus = (1 - (extraV))
+    return shieldbonus * goldenbonus
+}
+
 function VMC_getsocalledZ() {
     let max = getVoidMaxLevel();
     let lastPortal = getLastPortal();
@@ -50,21 +73,41 @@ function VMC_getsocalledZ() {
     return min
 }
 
-function VMC_getCurrentVMDCodds() {
+function VMC_getCurrentVMDropCooldown() {
     let netBonus = VMC_getCurrentVMDCeffect();
     let naturalCooldownCellCount = VMC_getsocalledZ();
-    let cooldownCellCount = netBonus * naturalCooldownCellCount;
+    return Math.ceil(netBonus * naturalCooldownCellCount)
+}
+function VMC_getFullGoldenVMDropWait() {
+    let netBonus = VMC_getMaxVMDCeffect();
+    let naturalCooldownCellCount = VMC_getsocalledZ();
+    return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average
+}
+function VMC_getNoGoldenVMDropCooldown() {
+    let netBonus = VMC_getMinVMDCeffect();
+    let naturalCooldownCellCount = VMC_getsocalledZ();
+    return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average
+}
 
-    let timeSinceVoid = game.global.lastVoidMap;
-    if (timeSinceVoid < cooldownCellCount) {
-        return 'cells left: ' + prettify(cooldownCellCount - timeSinceVoid);
-    }
-    let cellsPastCooldown = timeSinceVoid - cooldownCellCount;
-    let currentChance = Math.floor(cellsPastCooldown / 10) / 50000;
-	let returnstring = '';
-    returnstring += prettify(currentChance);
-    returnstring += '%-per-cell';
-    return returnstring;
+function VMC_getCurrentExpectedVMWait() {
+    return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_random_average;
+}
+function VMC_getLuckyVMWait() {
+    return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_random_average;
+}
+function VMC_getUnluckyVMWait() {
+    return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_random_average;
+}
+
+function VMC_getGoldenVoidVarianceText() {
+    let varianceText = '';
+    varianceText += `With 8 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getFullGoldenVMDropWait() + `. `;
+    varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
+    let difference_in_cells = VMC_getNoGoldenVMDropWait() - VMC_getFullGoldenVMDropWait();
+    let difference_in_percentage = VMC_getFullGoldenVMDropWait() / VMC_getNoGoldenVMDropWait();
+    varianceText += `This would be a net difference of ` + difference_in_cells + ` cells-per-void-map. Buying 8 golden voids means you get void maps about `;
+    varianceText += `<b>` + prettify(difference_in_percentage) + `%</b> faster.`;
+    return varianceText
 }
 
 function VMC_makeStringForDisplay() {
@@ -72,7 +115,7 @@ function VMC_makeStringForDisplay() {
         return 'N/A';
     }
     
-    const voidmapstring = prettify(VMC_getCurrentVMDCeffect()) + "<br\>" + VMC_getCurrentVMDCodds();
+    const voidmapstring = game.global.lastVoidMap + "<br\>/ " + VMC_getCurrentExpectedVMWait();
     return voidmapstring
 }
 
@@ -80,13 +123,52 @@ function VMC_getCurrentTotalVoids() {
     return game.global.totalVoidMaps + game.stats.totalVoidMaps;
 }
 
+function VMC_getEstimateVoidsWithCurrentVMDC() {
+    let currentCellTotal = (game.stats.zonesCleared.value * 100) + game.global.lastClearedCell;
+    let estimatedCellsPerVoid = VMC_getCurrentExpectedVMWait();
+    let expectedBasicVoidsThisRun = currentCellTotal / estimatedCellsPerVoid;
+
+    let expectedHazVoidsThisRun = 0;
+    if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
+        expectedHazVoidsThisRun = currentCellTotal / 1000
+    }
+
+    let voidspecVoidCount = 0;
+    if (mastery(voidSpecial)) {
+        voidspecVoidCount += Math.floor(getLastPortal() / 100);
+        if (masteryVoidSpecial2) {
+            voidspecVoidCount += Math.floor((getLastPortal() + 50) / 100);
+        }
+    }
+
+    let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
+    let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100
+
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * (espectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount);
+    return totalnetVoidMapEstimate;
+}
+
 function VMC_populateVoidMapTooltip() {
     if (usingRealTimeOffline == true) {
       return '';
     }
-    let tooltipstring = '';
-	tooltipstring = "tooltip('Runetrinket Summary', 'customText', event, '";
-    tooltipstring = "you've gotten " + VMC_getCurrentTotalVoids() + " voids total!";
+    let tooltipstring = "tooltip('Void Map Drop Rate Breakdown', 'customText', event, '";
+    tooltipstring += `<p>Your current Void Map Drop Cooldown is <b>` + VMC_getCurrentVMDropCooldown() + `</b>, after which the random-chance-per-cell starts ticking up.`;
+    tooltipstring += `You got your last void map <b>` + game.global.lastVoidMap + `</b> cells ago.`;
+    if (VMC_getCurrentVMDropCooldown() > game.global.lastVoidMap) {
+        tooltipstring += ` You'll need to clear <b>` + (VMC_getCurrentVMDropCooldown() - game.global.lastVoidMap) + `</b> more cells before you could possibly get the next void map.`;
+    } else {
+        let chance = Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000
+        tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear. This chance will increase by 1/50000 for every 10 cells you clear.`;
+    }
+    tooltipstring += `</p>`;
+    tooltipstring += `<p>Statistically, you will get a void map to drop every <b>` + VMC_getCurrentExpectedVMWait() + `</b> cells; however, this is a pretty wide random distribution.`;
+    tooltipstring += `1% of the time, you will get void maps every <b>` + VMC_getLuckyVMWait() + `</b> cells,`
+    tooltipstring += `and 1% of the time, you'll get void maps only every <b>` + VMC_getUnluckyVMWait() + `<b> cells.`;
+    tooltipstring += `</p>`;
+    tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
+    tooltipstring += `<p>You've gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
+    tooltipstring += `<p>With your current <b>` + VMC_getCurrentVMDCeffect() + `%</b> VMDC, you would expect to have gotten <b>` + VMC_getEstimateVoidsWithCurrentVMDC() + `</b> void maps.</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

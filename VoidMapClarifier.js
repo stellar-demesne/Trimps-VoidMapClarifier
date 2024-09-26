@@ -83,7 +83,7 @@ function VMC_getFullGoldenVMDropWait() {
     let naturalCooldownCellCount = VMC_getsocalledZ();
     return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average
 }
-function VMC_getNoGoldenVMDropCooldown() {
+function VMC_getNoGoldenVMDropWait() {
     let netBonus = VMC_getMinVMDCeffect();
     let naturalCooldownCellCount = VMC_getsocalledZ();
     return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average

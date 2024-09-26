@@ -1,11 +1,19 @@
 // these are the calculated number of cells needed to clear for a 99% chance, 50% chance, and 1% chance of having gotten the void map that quickly
 // they are rounded up, though, for nicer displaying.
-// 10% chance is at 328.5 cells; 25% chance is at 540.5 cells; 75% chance is at 1180.5 cells; 90% chance is at 1520.5 cells.
-// per_cell = floor(x/10) / 50000
-// cumulative = 1 - prod(n=1->x) [1-per_cell(n)]
-const Wombats_VMC_VMRate_random_unlucky = 2149;
-const Wombats_VMC_VMRate_random_average = 837;
-const Wombats_VMC_VMRate_random_lucky = 105;
+const Wombats_VMC_VMRate_random_unlucky = 2149; // 99%
+const Wombats_VMC_VMRate_random_average = 837; // 50%
+const Wombats_VMC_VMRate_random_lucky = 105; // 1%
+// for doing predictive voids-up-to-here: (unrounded because these ones don't end up getting printed directly)
+const Wombats_VMC_VMRate_middling_lucky = 718.5; // 40%
+const Wombats_VMC_VMRate_middling_unlucky = 960.5; // 60%
+//  1% chance is at 104.5 cells; 99% chance is at 2148.5 cells.
+// 10% chance is at 328.5 cells; 90% chance is at 1520.5 cells.
+// 25% chance is at 540.5 cells; 75% chance is at 1180.5 cells.
+// 40% chance is at 718.5 cells; 60% chance is at  960.5 cells.
+//                50% chance is at 836.5 cells.
+// formulae:
+//     per_cell = floor(x/10) / 50000
+//     cumulative = 1 - prod(n=1->x) [1-per_cell(n)]
 initialiseVoidMapClarifier();
 
 function initialiseVoidMapClarifier() {
@@ -102,6 +110,12 @@ function VMC_getLuckyVMWait() {
 function VMC_getUnluckyVMWait() {
     return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_random_unlucky;
 }
+function VMC_getSomewhatLuckyVMWait() {
+    return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_middling_lucky;
+}
+function VMC_getSomewhatUnluckyVMWait() {
+    return VMC_getCurrentVMDropCooldown() + Wombats_VMC_VMRate_middling_unlucky;
+}
 
 function VMC_getGoldenVoidVarianceText() {
     let varianceText = '';
@@ -131,9 +145,8 @@ function VMC_getCurrentTotalVoids() {
     return game.global.totalVoidMaps + game.stats.totalVoidMaps.value;
 }
 
-function VMC_getEstimateVoidsWithCurrentVMDC() {
+function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
     let currentCellTotal = (game.stats.zonesCleared.value * 100) + game.global.lastClearedCell;
-    let estimatedCellsPerVoid = VMC_getCurrentExpectedVMWait();
     let expectedBasicVoidsThisRun = currentCellTotal / estimatedCellsPerVoid;
 
     let expectedHazVoidsThisRun = 0;
@@ -212,8 +225,11 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
     tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
-    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>` + prettify(VMC_getEstimateVoidsWithCurrentVMDC()) + `</b> void maps.`;
-    tooltipstring += ` (this number changes completely if you switch heirlooms. be not alarmed)</p>`;
+    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>` + prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
+    let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
+    let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
+    tooltipstring += ` However, anywhere from ` + prettify(a_bit_lucky_version) + ` to ` + prettify(a_bit_unlucky_version) + ` are within 10% odds.`
+    tooltipstring += ` (these numbers change dramatically if you switch heirlooms. be not alarmed)</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

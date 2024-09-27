@@ -167,7 +167,7 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
         fluffyVoidCount += 4;
     }
     if (Fluffy.isRewardActive('voidelicious')) {
-        fluffyVoidCount += 4;
+        fluffyVoidCount += 16;
     }
     let scruffyVoidMult = 1
     if (Fluffy.isRewardActive('moreVoid')) {

@@ -218,7 +218,7 @@ function VMC_populateVoidMapTooltip() {
         tooltipstring += `<p>Your current shield heirloom is also giving an additional free void map for every 10 zones you clear with it equipped.</p>`;
     }
     tooltipstring += `<p>Statistically, you will get a void map to drop every <b>` + VMC_getCurrentExpectedVMWait() + `</b> cells; however, this is a pretty wide random distribution.`;
-    tooltipstring += `1% of the time, you will get void maps every <b>` + VMC_getLuckyVMWait() + `</b> cells,`
+    tooltipstring += ` 1% of the time, you will get void maps every <b>` + VMC_getLuckyVMWait() + `</b> cells,`
     tooltipstring += ` and 1% of the time, you will get void maps only every <b>` + VMC_getUnluckyVMWait() + `</b> cells.`;
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;

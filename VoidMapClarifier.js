@@ -126,7 +126,7 @@ function VMC_getGoldenVoidVarianceText() {
         varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
     }
     let difference_in_cells = VMC_getNoGoldenVMDropWait() - VMC_getFullGoldenVMDropWait();
-    let difference_in_percentage = VMC_getFullGoldenVMDropWait() / VMC_getNoGoldenVMDropWait();
+    let difference_in_percentage = (VMC_getNoGoldenVMDropWait() / VMC_getFullGoldenVMDropWait()) - 1;
     varianceText += `This would be a net difference of ` + difference_in_cells + ` cells-per-void-map. Buying 8 golden voids means you get void maps about `;
     varianceText += `<b>` + prettify(difference_in_percentage * 100) + `%</b> faster.`;
     return varianceText

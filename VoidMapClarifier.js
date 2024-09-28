@@ -31,6 +31,7 @@ function initialiseVoidMapClarifier() {
         const textareaVoidmapInfo = document.createElement('SPAN');
         containerVoidMapInfo.setAttribute('onmouseover', VMC_populateVoidMapTooltip());
         containerVoidMapInfo.setAttribute('onmouseout', 'tooltip("hide")');
+        containerVoidMapInfo.setAttribute('onclick', 'window.open("https://stellar-demesne.github.io/Trimps-VoidMapClarifier/")');
         textareaVoidmapInfo.id = 'VoidMapClarifier';
         containerVoidMapInfo.appendChild(textareaVoidmapInfo);
         let target_area = document.getElementById('science');
@@ -211,7 +212,7 @@ function VMC_populateVoidMapTooltip() {
     } else {
         let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
         tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear.`
-	tooltipstring += ` This chance will increase by ` + prettify(100/50000) + `% for every 10 cells you clear.`;
+        tooltipstring += ` This chance will increase by ` + prettify(100/50000) + `% for every 10 cells you clear.`;
     }
     tooltipstring += `</p>`;
     if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
@@ -230,6 +231,8 @@ function VMC_populateVoidMapTooltip() {
     let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
     tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% odds.`
     tooltipstring += ` (these numbers change dramatically if you switch heirlooms. be not alarmed)</p>`;
+    tooltipstring += `<hr/>`
+    tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;
     tooltipstring += "')"
     return tooltipstring
 }

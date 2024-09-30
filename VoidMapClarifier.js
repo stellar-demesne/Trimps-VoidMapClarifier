@@ -28,6 +28,7 @@ function initialiseVoidMapClarifier() {
             chosen_colours = darkmode_colours;
         }
         containerVoidMapInfo.setAttribute('style', 'display: block; position: absolute; top: 0; right: 0; width: 30%; font-size: 0.7em; text-align: center;' + chosen_colours);
+        containerVoidMapInfo.setAttribute('class', 'pointer noselect');
         const textareaVoidmapInfo = document.createElement('SPAN');
         containerVoidMapInfo.setAttribute('onmouseover', VMC_populateVoidMapTooltip());
         containerVoidMapInfo.setAttribute('onmouseout', 'tooltip("hide")');
@@ -43,8 +44,41 @@ function initialiseVoidMapClarifier() {
     }, 1000);
 }
 
+function VMC_getShieldVMDC_current_decimal() {
+    return (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+}
+
+function VMC_getShieldVMDC_max_decimal() {
+    let rarity = game.global.ShieldEquipped.rarity;
+    let hardCap =  game.heirlooms.Shield.voidMaps.max.at(rarity);
+    let currentActualCap = scaleHeirloomModUniverse("Shield", "voidMaps", hardCap)
+    return (1 - (currentActualCap / 100));
+}
+
+function VMC_getMaxObservableHeirloomRarity() {
+    let maxZone = game.global.highestLevelCleared + 1;
+    if (game.global.totalRadPortals > 0) {
+        maxZone = game.global.highestRadonLevelCleared + 1;
+    }
+    let maxRaritiesDropchanceBandNumber = getHeirloomZoneBreakpoint(maxZone, true);
+    let maxRaritiesDropchances = game.heirlooms.rarities.at(maxRaritiesDropchanceBandNumber);
+    let highestRarityIndex = maxRaritiesDropchances.length - 1;
+    return highestRarityIndex;
+}
+
+function VMC_getMaxRarityVMDC_max_decimal() {
+    let max_rarity = VMC_getMaxObservableHeirloomRarity() //getHeirloomRarityRanges(game.global.highestRadonLevelCleared, true).length - 1
+    let maxCap = game.heirlooms.Shield.voidMaps.max.at(max_rarity)
+    let maxActualCap = scaleHeirloomModUniverse("Shield", "voidMaps", maxCap)
+    return (1 - (maxActualCap / 100));
+}
+function VMC_getMaxRarity_isAtHazThreshhold() {
+    let max_rarity = VMC_getMaxObservableHeirloomRarity() //getHeirloomRarityRanges(game.global.highestRadonLevelCleared, true).length - 1;
+    return (max_rarity == 10)
+}
+
 function VMC_getCurrentVMDCeffect() {
-    let shieldbonus = (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+    let shieldbonus = VMC_getShieldVMDC_current_decimal()
     let extraV = 0;
 	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
         extraV = 0.2;
@@ -53,8 +87,37 @@ function VMC_getCurrentVMDCeffect() {
     return shieldbonus * goldenbonus
 }
 
-function VMC_getMaxVMDCeffect() {
-    let shieldbonus = (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+function VMC_GetCurrentMaxVMDCeffect() {
+    let shieldbonus = VMC_getShieldVMDC_max_decimal()
+    let extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
+        extraV = 0.2;
+    }
+    let goldenbonus = (1 - (game.goldenUpgrades.Void.currentBonus + extraV))
+    return shieldbonus * goldenbonus
+}
+
+function VMC_getMaxRarityMaxVMDCeffect() {
+    let shieldbonus = VMC_getMaxRarityVMDC_max_decimal()
+    let extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
+        extraV = 0.2;
+    }
+    let goldenbonus = (1 - (game.goldenUpgrades.Void.currentBonus + extraV))
+    return shieldbonus * goldenbonus
+}
+
+function VMC_getNoShieldVMDCeffect() {
+    let extraV = 0;
+	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
+        extraV = 0.2;
+    }
+    let goldenbonus = (1 - (game.goldenUpgrades.Void.currentBonus + extraV))
+    return goldenbonus
+}
+
+function VMC_getMaxGoldenVMDCeffect() {
+    let shieldbonus = VMC_getShieldVMDC_current_decimal()
     let extraV = 0;
 	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
         extraV = 0.2;
@@ -62,8 +125,8 @@ function VMC_getMaxVMDCeffect() {
     let goldenbonus = (1 - (0.72 + extraV))
     return shieldbonus * goldenbonus
 }
-function VMC_getMinVMDCeffect() {
-    let shieldbonus = (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
+function VMC_getMinGoldenVMDCeffect() {
+    let shieldbonus = VMC_getShieldVMDC_current_decimal()
     let extraV = 0;
 	if (game.challenges.Nurture.boostsActive() && game.challenges.Nurture.getLevel >= 4) {
         extraV = 0.2;
@@ -92,14 +155,37 @@ function VMC_getCurrentVMDropCooldown() {
     return Math.ceil(netBonus * naturalCooldownCellCount)
 }
 function VMC_getFullGoldenVMDropWait() {
-    let netBonus = VMC_getMaxVMDCeffect();
+    let netBonus = VMC_getMaxGoldenVMDCeffect();
     let naturalCooldownCellCount = VMC_getsocalledZ();
     return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average
 }
 function VMC_getNoGoldenVMDropWait() {
-    let netBonus = VMC_getMinVMDCeffect();
+    let netBonus = VMC_getMinGoldenVMDCeffect();
     let naturalCooldownCellCount = VMC_getsocalledZ();
     return Math.ceil(netBonus * naturalCooldownCellCount) + Wombats_VMC_VMRate_random_average
+}
+
+function VMC_getNoShieldVMDropCooldown() {
+    let netBonus = VMC_getNoShieldVMDCeffect();
+    let naturalCooldownCellCount = VMC_getsocalledZ();
+    return Math.ceil(netBonus * naturalCooldownCellCount)
+}
+function VMC_getNoShieldExpectedVMWait() {
+    return VMC_getNoShieldVMDropCooldown() + Wombats_VMC_VMRate_random_average
+}
+
+function VMC_getMaximisedCurrentExpectedVMWait() {
+    let netBonus = VMC_GetCurrentMaxVMDCeffect();
+    let naturalCooldownCellCount = VMC_getsocalledZ();
+    let dropCooldown = Math.ceil(netBonus * naturalCooldownCellCount)
+    return dropCooldown + Wombats_VMC_VMRate_random_average
+}
+
+function VMC_getMaxRarityMaxVMDCExpectedVMWait() {
+    let netBonus = VMC_getMaxRarityMaxVMDCeffect();
+    let naturalCooldownCellCount = VMC_getsocalledZ();
+    let dropCooldown = Math.ceil(netBonus * naturalCooldownCellCount)
+    return dropCooldown + Wombats_VMC_VMRate_random_average
 }
 
 function VMC_getCurrentExpectedVMWait() {
@@ -126,10 +212,58 @@ function VMC_getGoldenVoidVarianceText() {
     if (game.goldenUpgrades.Void.currentBonus > 0) {
         varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
     }
-    let difference_in_cells = VMC_getNoGoldenVMDropWait() - VMC_getFullGoldenVMDropWait();
-    let difference_in_percentage = (VMC_getNoGoldenVMDropWait() / VMC_getFullGoldenVMDropWait());
-    varianceText += `This would be a net difference of ` + difference_in_cells + ` cells-per-void-map. Buying 8 golden voids means you get void maps about `;
-    varianceText += `<b>` + prettify(difference_in_percentage) + `</b> times faster.`;
+    let difference_in_percentage = ((VMC_getNoGoldenVMDropWait() / VMC_getFullGoldenVMDropWait()) * 100) - 100;
+    varianceText += `Buying 8 golden voids means you`;
+    if (game.goldenUpgrades.Void.currentBonus < 0.72) {
+        varianceText += ` would`;
+    }
+    varianceText += ` get void maps about `;
+    varianceText += `<b>` + prettify(difference_in_percentage) + `%</b> faster.`;
+    return varianceText
+}
+
+function VMC_getShieldloomVarianceText() {
+    let varianceText = '';
+    let current_vmdc = VMC_getShieldVMDC_current_decimal();
+    let current_max = VMC_getShieldVMDC_max_decimal();
+    let maxrarity_max = VMC_getMaxRarityVMDC_max_decimal();
+    if (current_vmdc > current_max) {
+        // can improve shield
+        let upgraded_shield_boost_percentage = ((VMC_getCurrentExpectedVMWait() / VMC_getMaximisedCurrentExpectedVMWait()) * 100) - 100;
+        varianceText += `With a shield of currently equipped rarity with maxed VMDC, you would get voids about `
+        varianceText += prettify(upgraded_shield_boost_percentage) + `% faster. `
+    }
+    if (game.global.ShieldEquipped.rarity < VMC_getMaxObservableHeirloomRarity()) {
+        // can up rarity! (ouch)
+        let max_rarity_shield_boost_percentage = ((VMC_getCurrentExpectedVMWait() / VMC_getMaxRarityMaxVMDCExpectedVMWait()) * 100) - 100;
+        varianceText += `If you got the new rarity of shield with maxed VMDC, you`
+        if (VMC_getMaxRarity_isAtHazThreshhold()) {
+            varianceText += ` would`;
+        } else {
+            varianceText += ` could`;
+        }
+        varianceText += ` get voids about ` 
+        if (VMC_getMaxRarity_isAtHazThreshhold()) {
+            // technically a "downgrade"
+            varianceText += prettify(-max_rarity_shield_boost_percentage);
+            varianceText += `% slower, except also much faster in another way. <em>This <b>is</b> a buff</em>. `
+        } else {
+            varianceText += prettify(max_rarity_shield_boost_percentage);
+            varianceText += `% faster. `
+        }
+    }
+    if (current_vmdc < 1) {
+        // can worsen shield
+        let shield_boost_percentage = ((VMC_getNoShieldExpectedVMWait() / VMC_getCurrentExpectedVMWait()) * 100) - 100;
+        varianceText += `Your current shield is giving you void maps about <b>` + prettify(shield_boost_percentage) + `%</b> faster`
+        if (game.global.ShieldEquipped.rarity >= 10) {
+            varianceText += `,  as well as an additional free void map every 1000 cells cleared with it equipped.`
+            varianceText += ` You last got one ` + game.global.hazShieldCredit + ` cells ago.`;
+        } else {
+            varianceText += '.';
+        }
+    }
+
     return varianceText
 }
 
@@ -163,22 +297,23 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
         }
     }
 
-    let fluffyVoidCount = 0;
+    let petVoidCount = 0;
     if (Fluffy.isRewardActive('voidance')) {
-        fluffyVoidCount += 4;
+        petVoidCount += 4;
     }
     if (Fluffy.isRewardActive('voidelicious')) {
-        fluffyVoidCount += 16;
+        petVoidCount += 16;
     }
-    let scruffyVoidMult = 1
     if (Fluffy.isRewardActive('moreVoid')) {
-        scruffyVoidMult = 1.2
+        if (game.global.lastU2Voids >= 5 && game.global.universe == 2) {
+            petVoidCount = game.global.lastU2Voids / 5
+        }
     }
 
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
     let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
 
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * scruffyVoidMult * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount + fluffyVoidCount);
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount + petVoidCount );
     return totalnetVoidMapEstimate;
 }
 
@@ -204,33 +339,52 @@ function VMC_populateVoidMapTooltip() {
     if (usingRealTimeOffline == true) {
       return '';
     }
+    if (game.global.totalPortals < 1) {
+        return "tooltip('A Secret Tool for Later', 'customText', event, '<p>This is little box will be relevant later, but do not worry about it for now."
+            + " It is mostly just showing up here already to confirm that the mod has loaded.</p>"
+            + "<p>Have fun exploring the game!</p>')";
+    }
+    if ((game.stats.totalVoidMaps.valueTotal < 1)) {
+        return "tooltip('A Secret Tool for Later', 'customText', event, '<p>You feel that there is something in your future which is going to be Nice..."
+            + " but you cannot tell for certain what, or even quite where, it is. Still, it seems to be getting closer with every enemy you defeat.</p>"
+            + "<p>Have fun exploring the game!</p>')";
+    }
     let tooltipstring = "tooltip('Void Map Drop Rate Breakdown', 'customText', event, '";
-    tooltipstring += `<p>Your current Void Map Drop Cooldown is <b>` + VMC_getCurrentVMDropCooldown() + `</b>, after which the random-chance-per-cell starts ticking up.`;
+    if ((game.global.universe == 2 && game.global.totalRadPortals < 1)) {
+        tooltipstring += `<p>Sadly, you will be unable to get Void Maps in this new universe until you have portalled once.`
+        tooltipstring += ` Good luck in this new realm, friend!</p>`
+        tooltipstring += `<hr/>`
+        tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;
+        tooltipstring += "')"
+        return tooltipstring;
+    }
+    tooltipstring += `<p>Your current Void Map Drop Cooldown is <b>` + VMC_getCurrentVMDropCooldown()
+    tooltipstring += `</b>.`;
     tooltipstring += ` You got your last void map <b>` + game.global.lastVoidMap + `</b> cells ago.`;
     if (VMC_getCurrentVMDropCooldown() > game.global.lastVoidMap) {
-        tooltipstring += ` You need to clear <b>` + (VMC_getCurrentVMDropCooldown() - game.global.lastVoidMap) + `</b> more cells before you could possibly get the next void map.`;
+        tooltipstring += ` You need to clear <b>` + (VMC_getCurrentVMDropCooldown() - game.global.lastVoidMap)
+        tooltipstring += `</b> more cells before you could possibly get the next void map.`;
     } else {
         let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
         tooltipstring += ` You currently have a <b>` + prettify(chance) + `%</b> chance to get a void map every cell you clear.`
-        tooltipstring += ` This chance will increase by ` + prettify(100/50000) + `% for every 10 cells you clear.`;
     }
     tooltipstring += `</p>`;
-    if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
-        tooltipstring += `<p>Your current shield heirloom is also giving an additional free void map for every 10 zones you clear with it equipped.</p>`;
-    }
-    tooltipstring += `<p>Statistically, you will get a void map to drop every <b>` + VMC_getCurrentExpectedVMWait() + `</b> cells; however, this is a pretty wide random distribution.`;
+    tooltipstring += `<p>Statistically, you will get a void map to drop every <b>` + VMC_getCurrentExpectedVMWait()
+    tooltipstring += `</b> cells; however, this is a pretty wide random distribution.`;
     tooltipstring += ` 1% of the time, you will get void maps every <b>` + VMC_getLuckyVMWait() + `</b> cells,`
     tooltipstring += ` and 1% of the time, you will get void maps only every <b>` + VMC_getUnluckyVMWait() + `</b> cells.`;
     tooltipstring += `</p>`;
+    tooltipstring += `<p>` + VMC_getShieldloomVarianceText() + `</p>`;
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
     tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
     tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
-    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>` + prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
+    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>`
+    tooltipstring += prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
     let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
     let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
     tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% odds.`
-    tooltipstring += ` (these numbers change dramatically if you switch heirlooms. be not alarmed)</p>`;
+    tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms. be not alarmed)</p>`;
     tooltipstring += `<hr/>`
     tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;
     tooltipstring += "')"

@@ -66,6 +66,12 @@ function VMC_getMaxObservableHeirloomRarity() {
     return highestRarityIndex;
 }
 
+function VMC_currentRarityRangeHasHigherVMDCCap() {
+    let current_cap_effect = VMC_getShieldVMDC_max_decimal();
+    let highrarity_cap_effect = VMC_getMaxRarityVMDC_max_decimal();
+    return (highrarity_cap_effect != current_cap_effect)
+}
+
 function VMC_getMaxRarityVMDC_max_decimal() {
     let max_rarity = VMC_getMaxObservableHeirloomRarity() //getHeirloomRarityRanges(game.global.highestRadonLevelCleared, true).length - 1
     let maxCap = game.heirlooms.Shield.voidMaps.max.at(max_rarity)
@@ -233,8 +239,8 @@ function VMC_getShieldloomVarianceText() {
         varianceText += `With a shield of currently equipped rarity with maxed VMDC, you would get voids about `
         varianceText += prettify(upgraded_shield_boost_percentage) + `% faster. `
     }
-    if (game.global.ShieldEquipped.rarity < VMC_getMaxObservableHeirloomRarity()) {
-        // can up rarity! (ouch)
+    if (VMC_currentRarityRangeHasHigherVMDCCap()) {
+        // can up rarity, with higher VMDC cap! (ouch)
         let max_rarity_shield_boost_percentage = ((VMC_getCurrentExpectedVMWait() / VMC_getMaxRarityMaxVMDCExpectedVMWait()) * 100) - 100;
         varianceText += `If you got the new rarity of shield with maxed VMDC, you`
         if (VMC_getMaxRarity_isAtHazThreshhold()) {

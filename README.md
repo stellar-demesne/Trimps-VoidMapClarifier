@@ -1,5 +1,5 @@
 # Void Map Clarifier
-This is a simple mod that tries to help understand the mechanism that the void map dropping rules follow, adding a 
+This is a simple mod that tries to help understand the mechanism that the void map dropping rules follow, adding a little box with oodles of information in it, and links to a webpage giving about as complete a rundown as exists.
 
 ## Script installation
 ### Modloader

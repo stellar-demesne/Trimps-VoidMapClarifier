@@ -50,7 +50,7 @@ function VMC_getShieldVMDC_current_decimal() {
 
 function VMC_getShieldVMDC_max_decimal() {
     let rarity = game.global.ShieldEquipped.rarity;
-    let hardCap =  game.heirlooms.Shield.voidMaps.max.at(rarity);
+    let hardCap =  game.heirlooms.Shield.voidMaps.max[rarity];
     let currentActualCap = scaleHeirloomModUniverse("Shield", "voidMaps", hardCap)
     return (1 - (currentActualCap / 100));
 }
@@ -61,7 +61,7 @@ function VMC_getMaxObservableHeirloomRarity() {
         maxZone = game.global.highestRadonLevelCleared + 1;
     }
     let maxRaritiesDropchanceBandNumber = getHeirloomZoneBreakpoint(maxZone, true);
-    let maxRaritiesDropchances = game.heirlooms.rarities.at(maxRaritiesDropchanceBandNumber);
+    let maxRaritiesDropchances = game.heirlooms.rarities[(maxRaritiesDropchanceBandNumber)];
     let highestRarityIndex = maxRaritiesDropchances.length - 1;
     return highestRarityIndex;
 }
@@ -74,7 +74,7 @@ function VMC_currentRarityRangeHasHigherVMDCCap() {
 
 function VMC_getMaxRarityVMDC_max_decimal() {
     let max_rarity = VMC_getMaxObservableHeirloomRarity() //getHeirloomRarityRanges(game.global.highestRadonLevelCleared, true).length - 1
-    let maxCap = game.heirlooms.Shield.voidMaps.max.at(max_rarity)
+    let maxCap = game.heirlooms.Shield.voidMaps.max[max_rarity]
     let maxActualCap = scaleHeirloomModUniverse("Shield", "voidMaps", maxCap)
     return (1 - (maxActualCap / 100));
 }

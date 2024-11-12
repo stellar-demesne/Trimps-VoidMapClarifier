@@ -1,11 +1,12 @@
 // these are the calculated number of cells needed to clear for a 99% chance, 50% chance, and 1% chance of having gotten the void map that quickly
 // they are rounded up, though, for nicer displaying.
-const Wombats_VMC_VMRate_random_unlucky = 2149; // 99%
-const Wombats_VMC_VMRate_random_average = 837; // 50%
-const Wombats_VMC_VMRate_random_lucky = 105; // 1%
+const Wombats_VMC_VMRate_random_unlucky = 2200; // 99%
+const Wombats_VMC_VMRate_random_average = 890; // 50%
+const Wombats_VMC_VMRate_random_lucky = 100; // 1%
 // for doing predictive voids-up-to-here: (unrounded because these ones don't end up getting printed directly)
-const Wombats_VMC_VMRate_middling_lucky = 718.5; // 40%
-const Wombats_VMC_VMRate_middling_unlucky = 960.5; // 60%
+const Wombats_VMC_VMRate_middling_lucky = 700; // 40%
+const Wombats_VMC_VMRate_middling_unlucky = 1000; // 60%
+// previous estimates based on CDF:
 //  1% chance is at 104.5 cells; 99% chance is at 2148.5 cells.
 // 10% chance is at 328.5 cells; 90% chance is at 1520.5 cells.
 // 25% chance is at 540.5 cells; 75% chance is at 1180.5 cells.
@@ -13,7 +14,7 @@ const Wombats_VMC_VMRate_middling_unlucky = 960.5; // 60%
 //                50% chance is at 836.5 cells.
 // formulae:
 //     per_cell = floor(x/10) / 50000
-//     cumulative = 1 - prod(n=1->x) [1-per_cell(n)]
+//     cumulative = 1 - prod(n=1->x) [1-per_cell(n)] (presumed - disagrees with montecarlo test, but maybe i just misread the cdf?)
 initialiseVoidMapClarifier();
 
 function initialiseVoidMapClarifier() {

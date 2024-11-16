@@ -1,12 +1,22 @@
 // these are the calculated number of cells needed to clear for a 99% chance, 50% chance, and 1% chance of having gotten the void map that quickly
 // they are rounded up, though, for nicer displaying.
-const Wombats_VMC_VMRate_random_unlucky = 2200; // 99%
-const Wombats_VMC_VMRate_random_average = 890; // 50%
-const Wombats_VMC_VMRate_random_lucky = 100; // 1%
+const Wombats_VMC_VMRate_random_unlucky = 2219; // 99%
+const Wombats_VMC_VMRate_random_average = 859; // MEAN. median is 801
+const Wombats_VMC_VMRate_random_lucky = 90; // 1%
 // for doing predictive voids-up-to-here: (unrounded because these ones don't end up getting printed directly)
-const Wombats_VMC_VMRate_middling_lucky = 700; // 40%
-const Wombats_VMC_VMRate_middling_unlucky = 1000; // 60%
-// previous estimates based on CDF:
+// these two are based on numbers akin to median, not mean, so they lean more generous than stingy. not sure how/if to make that better.
+const Wombats_VMC_VMRate_middling_lucky = 683; // 40%
+const Wombats_VMC_VMRate_middling_unlucky = 925; // 60%
+// Mean 857.625, Median 801
+// Standard Deviation 473.451
+// Min 11, max 3087
+// based on complete and over-shooting survey, allowing every seed-start that finds a void map before seed 1161999
+// which is max starting seed 999999 plus 2 * 810 * 100, which is maximal possible theoretical void seed,
+// which requires the cooldown to be zero.
+// only 2309 checked seeds ended up discarded due to going over that limit - i do not know how many more should be discounted,
+// but the average should be relatively resilient to this small over-allowance.
+//
+// previous estimates based on what i think is CDF, below:
 //  1% chance is at 104.5 cells; 99% chance is at 2148.5 cells.
 // 10% chance is at 328.5 cells; 90% chance is at 1520.5 cells.
 // 25% chance is at 540.5 cells; 75% chance is at 1180.5 cells.

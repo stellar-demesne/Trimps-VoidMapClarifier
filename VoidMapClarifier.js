@@ -362,9 +362,16 @@ function VMC_populateVoidMapTooltip() {
             + "<p>Have fun exploring the game!</p>')";
     }
     if ((game.stats.totalVoidMaps.valueTotal < 1)) {
-        return "tooltip('A Secret Tool for Later', 'customText', event, '<p>You feel that there is something in your future which is going to be Nice..."
-            + " but you cannot tell for certain what, or even quite where, it is. Still, it seems to be getting closer with every enemy you defeat.</p>"
-            + "<p>Have fun exploring the game!</p>')";
+        if (VMC_getCurrentVMDropCooldown() < game.global.lastVoidMap) {
+            let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
+            return "tooltip('A Secret Tool for Later', 'customText', event, '<p>The supposedly Nice thing seems like it is approaching. Some itch suggests it currently has a "
+                 + prettify(chance) + "% chance to show up every time you kill an enemy? ...It might be nice if odd itches came with an instruction manual.</p>"
+                 + "<p>Have fun exploring the game!</p>')";
+        } else {
+            return "tooltip('A Secret Tool for Later', 'customText', event, '<p>You feel that there is something in your future which is going to be Nice..."
+                 + " but you cannot tell for certain what, or even quite where, it is. Still, it seems to be getting closer with every enemy you defeat.</p>"
+                 + "<p>Have fun exploring the game!</p>')";
+        }
     }
     let tooltipstring = "tooltip('Void Map Drop Rate Breakdown', 'customText', event, '";
     if ((game.global.universe == 2 && game.global.totalRadPortals < 1)) {

@@ -286,7 +286,7 @@ function VMC_getShieldloomVarianceText() {
 
 function VMC_makeStringForDisplay() {
     if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
-        return 'N/A';
+        return '???';
     }
     
     const voidmapstring = game.global.lastVoidMap + "<br\>/ " + VMC_getCurrentExpectedVMWait();

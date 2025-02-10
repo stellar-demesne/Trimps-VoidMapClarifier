@@ -362,7 +362,12 @@ function VMC_populateVoidMapTooltip() {
             + "<p>Have fun exploring the game!</p>')";
     }
     if ((game.stats.totalVoidMaps.valueTotal < 1)) {
-        if (VMC_getCurrentVMDropCooldown() < game.global.lastVoidMap) {
+        if (game.global.world * 100 > game.global.lastVoidMap) {
+            return "tooltip('A Secret Tool for Voids', 'customText', event, `<p>Well, your itch has proven connected to this weirdness called a Void Map."
+                 + " Another one is out there, it seems, but far away. Far enough to not feel very relevant... but if you need it, you can sense its distance"
+                 + " with all the vagueness you felt about the first one. With a bit more time, you can probably get a really good grasp on this itch.</p>"
+                 + "<p>Have fun exploring the game! You're getting the hang of this! :)</p>`)";
+        } else if (VMC_getCurrentVMDropCooldown() < game.global.lastVoidMap) {
             let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
             return "tooltip('A Secret Tool for Later', 'customText', event, '<p>The supposedly Nice thing seems like it is approaching. Some itch suggests it currently has a "
                  + prettify(chance) + "% chance to show up every time you kill an enemy? ...It might be nice if odd itches came with an instruction manual.</p>"

@@ -288,6 +288,12 @@ function VMC_makeStringForDisplay() {
     if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
         return '???';
     }
+
+    if (game.stats.totalVoidMaps.valueTotal + game.stats.totalVoidMaps.value < 1) { // have not cleared any void maps
+        if (game.global.lastVoidMap >= (100 * game.global.world)) { // AND we haven't seen a map drop yet this run
+            return game.global.lastVoidMap + "<br\>/ ???"; // then we should have no idea how long they take to drop
+        }
+    }
     
     const voidmapstring = game.global.lastVoidMap + "<br\>/ " + VMC_getCurrentExpectedVMWait();
     return voidmapstring
@@ -356,23 +362,23 @@ function VMC_populateVoidMapTooltip() {
     if (usingRealTimeOffline == true) {
       return '';
     }
-    if (game.global.totalPortals < 1) {
+    if (game.global.totalPortals < 1) { // have not yet portalled
         return "tooltip('A Secret Tool for Later', 'customText', event, '<p>This is little box will be relevant later, but do not worry about it for now."
             + " It is mostly just showing up here already to confirm that the mod has loaded.</p>"
             + "<p>Have fun exploring the game!</p>')";
     }
-    if ((game.stats.totalVoidMaps.valueTotal < 1)) {
-        if (game.global.world * 100 > game.global.lastVoidMap) {
+    if ((game.stats.totalVoidMaps.valueTotal < 1)) { // have not cleared any voids on previous runs
+        if (VMC_getCurrentTotalVoids() > 1) { // have obtained or cleared any voids this run
             return "tooltip('A Secret Tool for Voids', 'customText', event, `<p>Well, your itch has proven connected to this weirdness called a Void Map."
                  + " Another one is out there, it seems, but far away. Far enough to not feel very relevant... but if you need it, you can sense its distance"
                  + " with all the vagueness you felt about the first one. With a bit more time, you can probably get a really good grasp on this itch.</p>"
                  + "<p>Have fun exploring the game! You're getting the hang of this! :)</p>`)";
-        } else if (VMC_getCurrentVMDropCooldown() < game.global.lastVoidMap) {
+        } else if (VMC_getCurrentVMDropCooldown() < game.global.lastVoidMap) { // have chance to get (first) void every world cell
             let chance = (Math.floor((game.global.lastVoidMap - VMC_getCurrentVMDropCooldown()) / 10) / 50000) * 100
             return "tooltip('A Secret Tool for Later', 'customText', event, '<p>The supposedly Nice thing seems like it is approaching. Some itch suggests it currently has a "
                  + prettify(chance) + "% chance to show up every time you kill an enemy? ...It might be nice if odd itches came with an instruction manual.</p>"
                  + "<p>Have fun exploring the game!</p>')";
-        } else {
+        } else { // are still (implicitly) very early after first portal (or didn't clear any voids last portal)
             return "tooltip('A Secret Tool for Later', 'customText', event, '<p>You feel that there is something in your future which is going to be Nice..."
                  + " but you cannot tell for certain what, or even quite where, it is. Still, it seems to be getting closer with every enemy you defeat.</p>"
                  + "<p>Have fun exploring the game!</p>')";
@@ -404,8 +410,12 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += ` and 1% of the time, you will get void maps only every <b>` + VMC_getUnluckyVMWait() + `</b> cells.`;
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getShieldloomVarianceText() + `</p>`;
+    // if (have_seen_goldens) {
     tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
+    // }
+    // if (have_bonus_voids_from_bones) {
     tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
+    // }
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
     tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
     tooltipstring += ` you would expect to have gotten something like (estimate!) <b>`

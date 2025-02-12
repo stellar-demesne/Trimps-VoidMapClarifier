@@ -55,6 +55,39 @@ function initialiseVoidMapClarifier() {
     }, 1000);
 }
 
+function VMC_haveSeenGoldensYet() {
+    if (game.global.achievementBonus < 15) { // cannot see goldens at all
+        return false;
+    }
+    if (game.global.highestLevelCleared < 50) { // have not yet seen z50
+        return false;
+    }
+    return true;
+}
+
+function VMC_getZonesForEightGoldens() {
+    // this should actually be Infinity when achieve bonus is less than 15%
+    // but... i don't think its possible to hit z50 without 15% achieves
+    // and this function shouldnt even be called then either, so... it defaults to Goldens-Every-Fifty
+    if (game.global.achievementBonus < 100) {
+        return 8 * 50; // 400
+    } else if (game.global.achievementBonus < 300) {
+        return 8 * 45; // 360
+    } else if (game.global.achievementBonus < 600) {
+        return 8 * 40; // 320
+    } else if (game.global.achievementBonus < 1000) {
+        return 8 * 35; // 280
+    } else if (game.global.achievementBonus < 2000) {
+        return 8 * 30; // 240
+    } else if (game.global.achievementBonus >= 2000 + (500 * 8)) { // 6000
+        return 0; // start with 8 or more Goldens! (very snazzy)
+    } else { // start with between 0 and 7 goldens (inclusive)
+        // 200 zones, OR less by 25 for every 500 extra achievebonus:
+        let extra_goldens = (game.global.achievementBonus - 2000) / 500;
+        return 25 * (8 - extra_goldens);
+    }
+}
+
 function VMC_getShieldVMDC_current_decimal() {
     return (1 - (getHeirloomBonus("Shield", "voidMaps") / 100))
 }
@@ -229,6 +262,21 @@ function VMC_getGoldenVoidVarianceText() {
     if (game.goldenUpgrades.Void.currentBonus > 0) {
         varianceText += `With 0 Golden Voids, your estimated cells-per-void-map would be ` + VMC_getNoGoldenVMDropWait() + `. `;
     }
+    //* new version, with number-of-zones-to-get (with value judgements? :/ hmmm)
+    let num_zones_to_get_eight_voids = VMC_getZonesForEightGoldens();
+    if (num_zones_to_get_eight_voids == 0) {
+        if (game.goldenUpgrades.Void.currentBonus < 0.72) {
+            varianceText += `You could get all 8 golden voids immediately on portal, allowing you unhindered access to this bonus.`
+        }
+    } else if (num_zones_to_get_eight_voids > game.global.highestLevelCleared) {
+        varianceText += `However, acquiring all 8 golden voids would require clearing ` + num_zones_to_get_eight_voids
+        varianceText += ` zones, which is ...problematic.`
+    } else {
+        varianceText += `Note: acquiring all 8 golden voids requires clearing ` + num_zones_to_get_eight_voids
+        varianceText += ` zones, which will decrease their effectiveness.`
+    }
+    //*/
+    /* old version, with percentage boost
     let difference_in_percentage = ((VMC_getNoGoldenVMDropWait() / VMC_getFullGoldenVMDropWait()) * 100) - 100;
     varianceText += `Buying 8 golden voids means you`;
     if (game.goldenUpgrades.Void.currentBonus < 0.72) {
@@ -236,6 +284,7 @@ function VMC_getGoldenVoidVarianceText() {
     }
     varianceText += ` get void maps about `;
     varianceText += `<b>` + prettify(difference_in_percentage) + `%</b> faster.`;
+    //*/
     return varianceText
 }
 
@@ -246,36 +295,24 @@ function VMC_getShieldloomVarianceText() {
     let maxrarity_max = VMC_getMaxRarityVMDC_max_decimal();
     if (current_vmdc > current_max) {
         // can improve shield
-        let upgraded_shield_boost_percentage = ((VMC_getCurrentExpectedVMWait() / VMC_getMaximisedCurrentExpectedVMWait()) * 100) - 100;
-        varianceText += `With a shield of currently equipped rarity with maxed VMDC, you would get voids about `
-        varianceText += prettify(upgraded_shield_boost_percentage) + `% faster. `
+        varianceText += `With a shield of currently equipped rarity with maxed VMDC, your estimated cells-per-void-map would be `
+        varianceText += VMC_getMaximisedCurrentExpectedVMWait() + `.`
     }
     if (VMC_currentRarityRangeHasHigherVMDCCap()) {
-        // can up rarity, with higher VMDC cap! (ouch)
-        let max_rarity_shield_boost_percentage = ((VMC_getCurrentExpectedVMWait() / VMC_getMaxRarityMaxVMDCExpectedVMWait()) * 100) - 100;
-        varianceText += `If you got the new rarity of shield with maxed VMDC, you`
-        if (VMC_getMaxRarity_isAtHazThreshhold()) {
-            varianceText += ` would`;
-        } else {
-            varianceText += ` could`;
-        }
-        varianceText += ` get voids about ` 
+        // can up rarity with higher VMDC cap! (ouch)
+        varianceText += `If you got the new rarity of shield with maxed VMDC, your estimated cells-per-void-map would be `
+        varianceText += VMC_getMaxRarityMaxVMDCExpectedVMWait() + `. `
         if (VMC_getMaxRarity_isAtHazThreshhold()) {
             // technically a "downgrade"
-            varianceText += prettify(-max_rarity_shield_boost_percentage);
-            varianceText += `% slower, except also much faster in another way. <em>This <b>is</b> a buff</em>. `
-        } else {
-            varianceText += prettify(max_rarity_shield_boost_percentage);
-            varianceText += `% faster. `
+            varianceText += `, but with additional gains apart from the main drop mechanism. <em>This <b>is</b> a stronger version of VMDC</em>. `
         }
     }
     if (current_vmdc < 1) {
         // can worsen shield
-        let shield_boost_percentage = ((VMC_getNoShieldExpectedVMWait() / VMC_getCurrentExpectedVMWait()) * 100) - 100;
-        varianceText += `Your current shield is giving you void maps about <b>` + prettify(shield_boost_percentage) + `%</b> faster`
+        varianceText += `Without your current shield, your estimated cells-per-void-map would be ` + VMC_getNoShieldExpectedVMWait()
         if (game.global.ShieldEquipped.rarity >= 10) {
-            varianceText += `,  as well as an additional free void map every 1000 cells cleared with it equipped.`
-            varianceText += ` You last got one ` + game.global.hazShieldCredit + ` cells ago.`;
+            varianceText += `,  and also without the free void map per 1000 cells cleared (which `
+            varianceText += `will drop the next one in ` + (1000 - game.global.hazShieldCredit) + ` cells).`;
         } else {
             varianceText += '.';
         }
@@ -285,8 +322,11 @@ function VMC_getShieldloomVarianceText() {
 }
 
 function VMC_makeStringForDisplay() {
-    if ((game.global.totalPortals < 1) || (game.global.universe == 2 && game.global.totalRadPortals < 1)) {
+    if (game.global.totalPortals < 1) { // we have never yet portalled
         return '???';
+    }
+    if (game.global.universe == 2 && game.global.totalRadPortals < 1) { // we have reached u2, but haven't portalled there
+        return 'N/A';
     }
 
     if (game.stats.totalVoidMaps.valueTotal + game.stats.totalVoidMaps.value < 1) { // have not cleared any void maps
@@ -410,20 +450,20 @@ function VMC_populateVoidMapTooltip() {
     tooltipstring += ` and 1% of the time, you will get void maps only every <b>` + VMC_getUnluckyVMWait() + `</b> cells.`;
     tooltipstring += `</p>`;
     tooltipstring += `<p>` + VMC_getShieldloomVarianceText() + `</p>`;
-    // if (have_seen_goldens) {
-    tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
-    // }
+    if (VMC_haveSeenGoldensYet()) {
+        tooltipstring += `<p>` + VMC_getGoldenVoidVarianceText() + `</p>`;
+    }
     // if (have_bonus_voids_from_bones) {
     tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
     // }
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
     tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
-    tooltipstring += ` you would expect to have gotten something like (estimate!) <b>`
+    tooltipstring += ` you would expect to have gotten something like (this seems to consistently overestimate!) <b>`
     tooltipstring += prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
     let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
     let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
-    tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% odds.`
-    tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms. be not alarmed)</p>`;
+    tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% (calculated) odds.`
+    tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms mid run. be not alarmed)</p>`;
     tooltipstring += `<hr/>`
     tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;
     tooltipstring += "')"

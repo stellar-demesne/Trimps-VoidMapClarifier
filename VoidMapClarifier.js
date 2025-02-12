@@ -376,7 +376,7 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
     let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
 
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * (expectedBasicVoidsThisRun + expectedHazVoidsThisRun + voidspecVoidCount + petVoidCount );
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * (Math.floor(expectedBasicVoidsThisRun) + Math.floor(expectedHazVoidsThisRun) + Math.floor(voidspecVoidCount) + Math.floor(petVoidCount) );
     return totalnetVoidMapEstimate;
 }
 

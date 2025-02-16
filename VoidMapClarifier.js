@@ -83,7 +83,7 @@ function VMC_getZonesForEightGoldens() {
         return 0; // start with 8 or more Goldens! (very snazzy)
     } else { // start with between 0 and 7 goldens (inclusive)
         // 200 zones, OR less by 25 for every 500 extra achievebonus:
-        let extra_goldens = (game.global.achievementBonus - 2000) / 500;
+        let extra_goldens = Math.floor((game.global.achievementBonus - 2000) / 500);
         return 25 * (8 - extra_goldens);
     }
 }
@@ -269,10 +269,10 @@ function VMC_getGoldenVoidVarianceText() {
             varianceText += `You could get all 8 golden voids immediately on portal, allowing you unhindered access to this bonus.`
         }
     } else if (num_zones_to_get_eight_voids > game.global.highestLevelCleared) {
-        varianceText += `However, acquiring all 8 golden voids would require clearing ` + num_zones_to_get_eight_voids
+        varianceText += `However, acquiring all 8 golden voids would require clearing ` + prettify(num_zones_to_get_eight_voids)
         varianceText += ` zones, which is ...problematic.`
     } else {
-        varianceText += `Note: acquiring all 8 golden voids requires clearing ` + num_zones_to_get_eight_voids
+        varianceText += `Note: acquiring all 8 golden voids requires clearing ` + prettify(num_zones_to_get_eight_voids)
         varianceText += ` zones, which will decrease their effectiveness.`
     }
     //*/

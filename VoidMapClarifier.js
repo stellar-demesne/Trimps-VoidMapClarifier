@@ -368,9 +368,11 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
         petVoidCount += 16;
     }
     if (Fluffy.isRewardActive('moreVoid')) {
-        if (game.global.lastU2Voids >= 5 && game.global.universe == 2) {
-            petVoidCount = game.global.lastU2Voids / 5
-        }
+        if (Fluffy.isRewardActive('evenMoreVoid') {
+            petVoidCount = Math.floor( Math.floor(game.stats.mostU2Voids.valueTotal / 5) * 1.5 );
+        } else {
+            petVoidCount = Math.floor(game.global.lastU2Voids / 5)
+        } 
     }
 
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;

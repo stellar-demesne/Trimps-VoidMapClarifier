@@ -56,13 +56,7 @@ function initialiseVoidMapClarifier() {
 }
 
 function VMC_haveSeenGoldensYet() {
-    if (game.global.achievementBonus < 15) { // cannot see goldens at all
-        return false;
-    }
-    if (game.global.highestLevelCleared < 50) { // have not yet seen z50
-        return false;
-    }
-    return true;
+    return game.stats.goldenUpgrades.valueTotal > 0
 }
 
 function VMC_getZonesForEightGoldens() {

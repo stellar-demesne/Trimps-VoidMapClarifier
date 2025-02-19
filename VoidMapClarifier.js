@@ -368,7 +368,7 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
         petVoidCount += 16;
     }
     if (Fluffy.isRewardActive('moreVoid')) {
-        if (Fluffy.isRewardActive('evenMoreVoid') {
+        if (Fluffy.isRewardActive('evenMoreVoid')) {
             petVoidCount = Math.floor( Math.floor(game.stats.mostU2Voids.valueTotal / 5) * 1.5 );
         } else {
             petVoidCount = Math.floor(game.global.lastU2Voids / 5)
@@ -460,11 +460,13 @@ function VMC_populateVoidMapTooltip() {
     // }
     tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
     tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
-    tooltipstring += ` you would expect to have gotten something like (this seems to consistently overestimate!) <b>`
+    tooltipstring += ` you would expect to have gotten something like <b>`
     tooltipstring += prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
     let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
     let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
-    tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% (calculated) odds.`
+    if (a_bit_lucky_version != a_bit_unlucky_version) {
+        tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% (calculated) odds.`
+    }
     tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms mid run. be not alarmed)</p>`;
     tooltipstring += `<hr/>`
     tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;

@@ -346,10 +346,17 @@ function VMC_getCurrentTotalVoids() {
 function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
     let currentCellTotal = (game.stats.zonesCleared.value * 100) + game.global.lastClearedCell;
     let expectedBasicVoidsThisRun = currentCellTotal / estimatedCellsPerVoid;
+    if (expectedBasicVoidsThisRun >= 10) {
+        // when there are few voids expected, this showing partials is good.
+        // however, that last partial is more than we actually expect, so we should not show it when it isn't a large fraction of the voids we're getting
+        expectedBasicVoidsThisRun = Math.floor(expectedBasicVoidsThisRun)
+    }
 
     let expectedHazVoidsThisRun = 0;
     if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
         expectedHazVoidsThisRun = currentCellTotal / 1000
+        // we do not actually expect to get these early, at all. so we do not count the partially-earned.
+        expectedHazVoidsThisRun = Math.floor(expectedHazVoidsThisRun)
     }
 
     let voidspecVoidCount = 0;
@@ -378,7 +385,7 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
     let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
 
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * (Math.floor(expectedBasicVoidsThisRun) + Math.floor(expectedHazVoidsThisRun) + Math.floor(voidspecVoidCount) + Math.floor(petVoidCount) );
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * ((expectedBasicVoidsThisRun) + (expectedHazVoidsThisRun) + (voidspecVoidCount) + (petVoidCount) );
     return totalnetVoidMapEstimate;
 }
 

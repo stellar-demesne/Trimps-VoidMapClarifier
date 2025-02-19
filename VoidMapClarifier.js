@@ -352,6 +352,15 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
         expectedBasicVoidsThisRun = Math.floor(expectedBasicVoidsThisRun)
     }
 
+    let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
+    let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
+
+    let totalnetVoidMapEstimate = netBoneVoidsBoost * (expectedBasicVoidsThisRun);
+    return totalnetVoidMapEstimate;
+}
+
+function VMC_getCurrentGuaranteedVoids() {
+    let currentCellTotal = (game.stats.zonesCleared.value * 100) + game.global.lastClearedCell;
     let expectedHazVoidsThisRun = 0;
     if (game.global.ShieldEquipped && game.global.ShieldEquipped.rarity >= 10 && game.heirlooms.Shield.voidMaps.currentBonus > 0) {
         expectedHazVoidsThisRun = currentCellTotal / 1000
@@ -384,9 +393,7 @@ function VMC_getEstimateVoidsWithGivenWait(estimatedCellsPerVoid) {
 
     let voidmapPermaBonus = game.permaBoneBonuses.voidMaps.owned;
     let netBoneVoidsBoost = (100 + voidmapPermaBonus) / 100;
-
-    let totalnetVoidMapEstimate = netBoneVoidsBoost * ((expectedBasicVoidsThisRun) + (expectedHazVoidsThisRun) + (voidspecVoidCount) + (petVoidCount) );
-    return totalnetVoidMapEstimate;
+    return netBoneVoidsBoost * (voidspecVoidCount + petVoidCount + expectedHazVoidsThisRun);
 }
 
 function VMC_stringifyCurrentBoneBonusTimer() {
@@ -461,16 +468,32 @@ function VMC_populateVoidMapTooltip() {
     // if (have_bonus_voids_from_bones) {
     tooltipstring += `<p>` + VMC_stringifyCurrentBoneBonusTimer() + `</p>`;
     // }
-    tooltipstring += `<p>You have gotten <b>` + VMC_getCurrentTotalVoids() + `</b> void maps total this run!</p>`;
-    tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
-    tooltipstring += ` you would expect to have gotten something like <b>`
-    tooltipstring += prettify(VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait())) + `</b> void maps.`;
-    let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
-    let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
-    if (a_bit_lucky_version != a_bit_unlucky_version) {
-        tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% (calculated) odds.`
+    let currentTotalVoids = VMC_getCurrentTotalVoids()
+    tooltipstring += `<p>You have gotten <b>` + currentTotalVoids + `</b> void maps total this run!`;
+    let currentGuaranteedVoids = VMC_getCurrentGuaranteedVoids();
+    if (currentGuaranteedVoids > 0) {
+        let impliedRandomVoids = currentTotalVoids - currentGuaranteedVoids
+        tooltipstring += ` Of these, around ` + prettify(currentGuaranteedVoids) + ` were guaranteed drops, and maybe ` + prettify(impliedRandomVoids) + ` were from the normal random system.`
     }
-    tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms mid run. be not alarmed)</p>`;
+    tooltipstring += `</p>`;
+    let a_bit_normal_version = VMC_getEstimateVoidsWithGivenWait(VMC_getCurrentExpectedVMWait());
+    if (a_bit_normal_version >= 0.1) {
+        tooltipstring += `<p>With your current <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
+        tooltipstring += ` you would expect to have gotten something like <b>`
+        tooltipstring += prettify(a_bit_normal_version) + `</b> random void maps.`;
+        let a_bit_lucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatLuckyVMWait());
+        let a_bit_unlucky_version = VMC_getEstimateVoidsWithGivenWait(VMC_getSomewhatUnluckyVMWait());
+        if (a_bit_lucky_version != a_bit_unlucky_version) {
+            tooltipstring += ` However, anywhere from ` + prettify(a_bit_unlucky_version) + ` to ` + prettify(a_bit_lucky_version) + ` are within 10% (calculated) odds.`
+        } else {
+            // i don't honestly think this will show up? but who the heck knows.
+            tooltipstring += ` This seems to be a very confident prediction, within 10% odds in both directions.`
+        }
+        tooltipstring += ` (these numbers are likely very wrong if you switched heirlooms mid run. be not alarmed)</p>`;
+    } else {
+        tooltipstring += `<p>You currently have <b>` + prettify(100 - Math.round(VMC_getCurrentVMDCeffect()*100)) + `%</b> VMDC,`
+        tooltipstring += ` and you have not progressed far enough to expect a void map at all. (you may want to switch to your VMDC shield, if you have one!)</p>`
+    }
     tooltipstring += `<hr/>`
     tooltipstring += `<p>Click to open a page with details about how Void Maps drop</p>`;
     tooltipstring += "')"

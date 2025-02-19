@@ -388,15 +388,11 @@ function VMC_stringifyCurrentBoneBonusTimer() {
     if (current_number_owned == 0) {
         return ''
     }
-    let drops_until_next_double = Math.floor((99 - current_tracker_moment) / current_number_owned);
-    if (drops_until_next_double <= 0) {
+    let drops_until_next_double = Math.ceil((100 - current_tracker_moment) / current_number_owned);
+    if (drops_until_next_double <= 1) {
         return 'Your next void map drop will be duplicated!'
     }
-    let returntext = 'Your next duplicated void map drop is <b>' + drops_until_next_double + '</b> drop';
-    if (drops_until_next_double != 1) {
-        returntext += 's';
-    }
-    returntext += ' away.'
+    let returntext = 'Your next duplicated void map drop is <b>' + drops_until_next_double + '</b> drops away.';
     return returntext
 }
 

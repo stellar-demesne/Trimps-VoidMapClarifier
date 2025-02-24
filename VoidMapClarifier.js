@@ -325,11 +325,11 @@ function VMC_makeStringForDisplay() {
 
     if (game.stats.totalVoidMaps.valueTotal + game.stats.totalVoidMaps.value < 1) { // have not cleared any void maps
         if (game.global.lastVoidMap >= (100 * game.global.world)) { // AND we haven't seen a map drop yet this run
-            return game.global.lastVoidMap + "<br\>/ ???"; // then we should have no idea how long they take to drop
+            return `${game.global.lastVoidMap}<span style="display: block; border-bottom: 1px solid black; margin: 5px;"></span>${'???'}`; // then we should have no idea how long they take to drop
         }
     }
     
-    const voidmapstring = game.global.lastVoidMap + "<br\>/ " + VMC_getCurrentExpectedVMWait();
+    const voidmapstring = `${game.global.lastVoidMap}<span style="display: block; border-bottom: 1px solid black; margin: 5px;"></span>${VMC_getCurrentExpectedVMWait()}`;
     return voidmapstring
 }
 
